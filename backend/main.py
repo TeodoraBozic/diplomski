@@ -5,6 +5,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
 
+from routers import auth, users
+
 # Učitaj .env
 load_dotenv()
 
@@ -35,7 +37,10 @@ db = client[MONGO_DB]
 async def root():
     return {"message": "Dobrodošao na diplomski backend 🚀"}
 
-@app.get("/health")
+app.include_router(users.router)
+app.include_router(auth.router)
+
+@app.get("/health") 
 async def health_check():
     try:
         await db.command("ping")
@@ -44,3 +49,4 @@ async def health_check():
         return {"status": "error", "db": str(e)}
     
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+

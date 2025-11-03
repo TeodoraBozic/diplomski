@@ -30,9 +30,9 @@ class Role(str, Enum):
     
 
 class UserIn(BaseModel):  
-    username: Annotated[str, Field(min_length=3, max_length=30)]
+    username: Annotated[str, Field(min_length=3, max_length=30)] 
     email:EmailStr #na frontu neka bude validacija
-    password: Annotated[str, Field(min_length=6, max_length=30)] #ovo ce u bazi da bude hesirano
+    password: Annotated[str, Field(min_length=6)] #ovo ce u bazi da bude hesirano
     title: str #student, diplomirani pravnik, ucenik
     location: str #Nis, Beograd...
     age: Annotated[int, Field(ge=16)] 

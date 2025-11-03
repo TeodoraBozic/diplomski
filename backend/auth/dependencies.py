@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from bson import ObjectId
 from jose import JWTError, jwt
 
-from database import users_col
-from models import UserDB
+from database.connection import users_col
+from models.user_models import UserDB
 from auth.jwt_handler import ALGORITHM, SECRET_KEY
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")

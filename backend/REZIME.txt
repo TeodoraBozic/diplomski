@@ -1,0 +1,1 @@
+dodala sam da i username i email budu unique da bi moglo da se obavi pretrazivanje korisnika po username-u a ne id-ju
