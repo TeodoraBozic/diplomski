@@ -47,3 +47,6 @@ class OrganisationService:
             "message": "Zahtev za registraciju organizacije je uspešno poslat i čeka odobrenje admina.",
             "id": org_id
         }
+        
+    async def find_organisations(self):
+        return await repo.find_organisations()

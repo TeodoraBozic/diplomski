@@ -1,5 +1,5 @@
 from bson import ObjectId
-from database.connection import organisations_col
+from database.connection import organisations_col, events_col
 
 class OrganisationRepository:
     
@@ -25,6 +25,29 @@ class OrganisationRepository:
 
     async def find_by_email(self, email: str):
         return await organisations_col.find_one({"email": email})
+    
+    #ovo je za prikaz korisnicima
+    async def find_organisations(self):
+        orgs  = await organisations_col.find({"status": "approved"}).to_list(length=None)
+        
+        for org in orgs:
+            org["_id"]= str(org["_id"])
+            
+        return orgs
+    
+    #svi eventi jedne organizacije
+    async def find_organisations_events(self, organisation_id: str):
+        events = await events_col.find({"organisation_id": ObjectId(organisation_id)}).to_list(length=None)
+        for e in events:
+            e["_id"] = str(e["_id"])
+            e["organisation_id"] = str(e["organisation_id"])
+        return events
+
+        
+
+        
+        
+        
 
 
 

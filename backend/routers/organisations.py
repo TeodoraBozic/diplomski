@@ -1,5 +1,6 @@
+from typing import List
 from fastapi import APIRouter, Depends
-from models.organisation_models import OrganisationIn
+from models.organisation_models import OrganisationIn, OrganisationPublic
 from services.organisation_service import OrganisationService
 from auth.dependencies import admin_required
 from models.user_models import UserDB
@@ -25,3 +26,7 @@ async def approve_org(org_id: str, current_admin: UserDB = Depends(admin_require
 @router.patch("/{org_id}/reject", dependencies=[Depends(admin_required)])
 async def reject_org(org_id: str, current_admin: UserDB = Depends(admin_required)):
     return await service.reject_organisation(org_id)
+
+@router.get("/findorganisations", response_model=List[OrganisationPublic])
+async def findorganisations():
+    return await service.find_organisations()

@@ -5,9 +5,11 @@ from jose import JWTError, jwt
 
 from database.connection import users_col
 from models.user_models import Role, UserDB
-from auth.jwt_handler import ALGORITHM, SECRET_KEY
+from auth.jwt_handler import ALGORITHM, SECRET_KEY, decode_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+oauth2_org_scheme = OAuth2PasswordBearer(tokenUrl="auth/organisations/login")
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserDB:
@@ -42,3 +44,13 @@ async def admin_required(current_user: UserDB = Depends(get_current_user)):
             detail="Samo admin ima pristup ovoj akciji."
         )
     return current_user
+
+
+async def get_current_org(token: str = Depends(oauth2_org_scheme)):
+    payload = decode_access_token(token)
+    if payload.get("role") != "organisation":
+        raise HTTPException(
+            403,
+            detail="Samo organizacije imaju pristup ovoj ruti."
+        )
+    return payload

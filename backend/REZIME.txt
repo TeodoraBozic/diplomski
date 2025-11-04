@@ -17,7 +17,12 @@ set admin = proveriti sa profesorom koji je najbolji nacin za to
 
 ORGANISATION:
 
+//odradila sam ovo: updateuje se status kad admin odobri ili rejectuje
 Kada se nova organizacija registruje, u bazi se čuva sa status="pending".
 Admin u panelu vidi /organisations/pending.
 Klikom odobrava (PATCH → approve) ili odbija (reject).
 Nakon toga status postaje "approved" ili "rejected", i to možeš koristiti da odlučiš koje organizacije se prikazuju na sajtu.
+
+get all organisations done
+
+

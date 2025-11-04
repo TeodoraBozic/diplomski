@@ -1,9 +1,11 @@
+import bcrypt
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from bson import ObjectId
 
-from database.connection import users_col
+from database.connection import users_col, organisations_col
+from models.organisation_models import OrganisationIn, OrganisationLogin
 from models.user_models import UserIn, UserDB, UserPublic
 from auth.auth_utils import hash_password, verify_password
 from auth.jwt_handler import create_access_token, EXPIRE_MINUTES
@@ -33,7 +35,7 @@ async def register(user: UserIn):
     return UserPublic(**user_dict)
 
 
-# --- Login ---
+#login korisnika
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await users_col.find_one({"email": form_data.username})
@@ -54,3 +56,15 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     current_user["_id"] = str(current_user["_id"])
     # i napravimo public model bez passworda
     return UserPublic(**current_user)
+
+@router.post("/org/login")
+async def login_org(org_login: OrganisationLogin):
+    org = await organisations_col.find_one({"email": org_login.email})
+    if not org or not bcrypt.checkpw(org_login.password.encode(), org["password"].encode()):
+        raise HTTPException(status_code=401, detail="Neispravni podaci")
+
+    if org["status"] != "approved":
+        raise HTTPException(status_code=403, detail="Organizacija nije odobrena od strane administratora")
+
+    token = create_access_token(data={"sub": org["email"], "role": "organisation"})
+    return {"access_token": token, "token_type": "bearer"}

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
+from fastapi.openapi.utils import get_openapi
 
 from routers import auth, organisations, users
 
@@ -51,3 +52,25 @@ async def health_check():
     
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Diplomski API",
+        version="1.0.0",
+        description="API sa posebnim loginima za korisnike i organizacije",
+        routes=app.routes,
+    )
+
+    # Dodaj ručni Bearer auth (ručni unos tokena)
+    openapi_schema["components"]["securitySchemes"]["BearerAuth"] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+    }
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
