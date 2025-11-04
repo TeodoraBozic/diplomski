@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
 
-from routers import auth, users
+from routers import auth, organisations, users
 
 # Učitaj .env
 load_dotenv()
@@ -39,6 +39,7 @@ async def root():
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(organisations.router)
 
 @app.get("/health") 
 async def health_check():

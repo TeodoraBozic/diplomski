@@ -1,1 +1,23 @@
 dodala sam da i username i email budu unique da bi moglo da se obavi pretrazivanje korisnika po username-u a ne id-ju
+
+radi mi update user valjda samo sebe moze da updateuje? 
+ako user nikada ne prima id kroz rutu ne treba da proveravamo da li npr updateuje samog sebe jer to radimo kroz get current user
+
+todo:
+USER:
+get user by username
+get user by email
+delete user
+register 
+login
+logout
+update user (proverava mi sve validacije UserUpdate) + dodatno da novo ime nije zauzeto
+add profile picture (korisnik za sebe dodaje profilnu sliku = imgurl mi je u UserDB)
+set admin = proveriti sa profesorom koji je najbolji nacin za to
+
+ORGANISATION:
+
+Kada se nova organizacija registruje, u bazi se čuva sa status="pending".
+Admin u panelu vidi /organisations/pending.
+Klikom odobrava (PATCH → approve) ili odbija (reject).
+Nakon toga status postaje "approved" ili "rejected", i to možeš koristiti da odlučiš koje organizacije se prikazuju na sajtu.
