@@ -7,12 +7,6 @@ from pydantic import BaseModel, Field, ConfigDict
 from .user_models import PyObjectId  # isti helper kao kod users/orgs
 
 
-#status eventa (menja admin)
-class EventStatus(str, Enum):
-    pending = "pending"     # čeka odobrenje admina
-    approved = "approved"   # admin odobrio
-    rejected = "rejected"   # admin odbio
-
 
 class EventCategory(str, Enum):
     sportski = "sports"
@@ -35,7 +29,7 @@ class EventIn(BaseModel):
     end_date: datetime.datetime  
     location: str #lokacija
     category: EventCategory #enum za tip dogadjaja
-    organisation_id: PyObjectId  #uvek vezan za neku organizaciju (formal or informal)
+    organisation_id: Optional[str] = None  #uvek vezan za neku organizaciju (formal or informal)
 
     # opcione stvari
     max_volunteers: Optional[int] = None
@@ -52,8 +46,7 @@ class EventPublic(BaseModel):
     end_date: datetime.datetime
     location: str
     category: EventCategory
-    status: EventStatus
-    organisation_id: str
+    organisation_id: Optional[str] = None
     max_volunteers: Optional[int] = None
     image: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
@@ -62,7 +55,6 @@ class EventPublic(BaseModel):
 #cuvanje eventa u bazu
 class EventDB(EventIn):
     id: Annotated[PyObjectId, Field(alias="_id")]
-    status: EventStatus = EventStatus.pending  # default je pending
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: Optional[datetime.datetime] = None
 
@@ -81,7 +73,6 @@ class EventUpdate(BaseModel):
     end_date: Optional[datetime.datetime] = None 
     location: Optional[str] = None
     category: Optional[EventCategory] = None
-    status: Optional[EventStatus] = None  # admin menja
     max_volunteers: Optional[int] = None
     image: Optional[str] = None
     tags: Optional[List[str]] = None

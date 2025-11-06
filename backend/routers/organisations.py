@@ -13,7 +13,7 @@ service = OrganisationService()
 async def register_organisation(org_in: OrganisationIn):
     return await service.register_organisation(org_in)
 
-@router.get("/pending", dependencies=[Depends(admin_required)])
+@router.get("/pending", dependencies=[Depends(admin_required)], response_model=List[OrganisationPublic])
 async def get_pending_orgs(current_admin: UserDB = Depends(admin_required)):
     return await service.list_pending()
 

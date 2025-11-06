@@ -25,4 +25,14 @@ Nakon toga status postaje "approved" ili "rejected", i to možeš koristiti da o
 
 get all organisations done
 
+trebace mi: 
+svi eventovi u odredjenom gradu = get_events_by_location
+svi eventovi u nekom periodu
+svi eventovi narednog meseca npr
+paginacija
+pretrazi event po kategoriji
+sve organizacije u odredjenom gradu + dugme pored toga prikazi eventove odredjene organizacije
+prikazi sve zvanicne organizacije
+prikazi sve neformalne organizacije
+neki filter mozda za organizacije
 

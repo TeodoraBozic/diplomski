@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
 
-from routers import auth, organisations, users
+from routers import auth, events, organisations, users
 
 # Učitaj .env
 load_dotenv()
@@ -41,6 +41,7 @@ async def root():
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(organisations.router)
+app.include_router(events.router)
 
 @app.get("/health") 
 async def health_check():
@@ -56,6 +57,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
+
     openapi_schema = get_openapi(
         title="Diplomski API",
         version="1.0.0",
@@ -63,12 +65,27 @@ def custom_openapi():
         routes=app.routes,
     )
 
-    # Dodaj ručni Bearer auth (ručni unos tokena)
-    openapi_schema["components"]["securitySchemes"]["BearerAuth"] = {
+    openapi_schema["components"]["securitySchemes"]["UserAuth"] = {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "🔐 Login za korisnike (/auth/login)\nUnesite token u formatu: **Bearer eyJ...**"
     }
+
+    openapi_schema["components"]["securitySchemes"]["OrgAuth"] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "🏢 Login za organizacije (/auth/org/login)\nUnesite token u formatu: **Bearer eyJ...**"
+    }
+
+    # 💡 Poveži rute sa OrgAuth security-jem po imenu taga (npr. Events)
+    for path in openapi_schema["paths"].values():
+        for method in path.values():
+            if "Events" in method.get("tags", []):
+                method["security"] = [{"OrgAuth": []}]
+            else:
+                method["security"] = [{"UserAuth": []}]
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
