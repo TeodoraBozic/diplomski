@@ -6,13 +6,24 @@ import os
 from dotenv import load_dotenv
 from fastapi.openapi.utils import get_openapi
 
-from routers import auth, events, organisations, users
+from routers import (
+    auth,
+    admin_routes,
+    org_routes,
+    public_org_routes,
+    public_user_routes,
+    user_routes,
+    public_event_routes,
+    
+)
+
 
 # Učitaj .env
 load_dotenv()
 
 # FastAPI app
-app = FastAPI(title="Diplomski Backend")
+app = FastAPI(title="Diplomski Backend",debug=True)
+
 
 # --- CORS Middleware ---
 origins = [
@@ -38,10 +49,15 @@ db = client[MONGO_DB]
 async def root():
     return {"message": "Dobrodošao na diplomski backend 🚀"}
 
-app.include_router(users.router)
+
 app.include_router(auth.router)
-app.include_router(organisations.router)
-app.include_router(events.router)
+app.include_router(admin_routes.router)
+app.include_router(org_routes.router)
+app.include_router(user_routes.router)
+app.include_router(public_user_routes.router)
+app.include_router(public_org_routes.router)
+app.include_router(public_event_routes.router)
+
 
 @app.get("/health") 
 async def health_check():
@@ -65,29 +81,54 @@ def custom_openapi():
         routes=app.routes,
     )
 
-    openapi_schema["components"]["securitySchemes"]["UserAuth"] = {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "🔐 Login za korisnike (/auth/login)\nUnesite token u formatu: **Bearer eyJ...**"
+    # 🔐 Definicije tokena
+    openapi_schema["components"]["securitySchemes"] = {
+        "UserAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "🔐 Login za korisnike (/auth/login)\nUnesite token u formatu: **Bearer eyJ...**",
+        },
+        "OrgAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "🏢 Login za organizacije (/auth/org/login)\nUnesite token u formatu: **Bearer eyJ...**",
+        },
+        "AdminAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "👑 Login za admina (/auth/login)\nUnesite token u formatu: **Bearer eyJ...**",
+        },
     }
 
-    openapi_schema["components"]["securitySchemes"]["OrgAuth"] = {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "🏢 Login za organizacije (/auth/org/login)\nUnesite token u formatu: **Bearer eyJ...**"
+    # 💡 Eksplicitno mapiranje po tagovima
+    tag_security_map = {
+        "Admin": "AdminAuth",
+        "User": "UserAuth",
+        "Organisation": "OrgAuth",
+        # Public i Auth su javni, pa ih ne stavljamo
     }
 
-    # 💡 Poveži rute sa OrgAuth security-jem po imenu taga (npr. Events)
+    # 🔎 Primeni mapu na svaki path
     for path in openapi_schema["paths"].values():
         for method in path.values():
-            if "Events" in method.get("tags", []):
-                method["security"] = [{"OrgAuth": []}]
+            tags = method.get("tags", [])
+            if not tags:
+                continue
+
+            tag = tags[0]  # svaki endpoint ima bar jedan tag
+            if tag in tag_security_map:
+                method["security"] = [{tag_security_map[tag]: []}]
+            elif tag in ["Public", "Auth"]:
+                method.pop("security", None)  # javne rute
             else:
+                # fallback ako se pojavi novi tag bez pravila
                 method["security"] = [{"UserAuth": []}]
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
 app.openapi = custom_openapi
+

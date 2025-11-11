@@ -18,7 +18,6 @@ class ApplicationStatus(str, Enum):
 #kreiranje prijave
 class ApplicationIn(BaseModel):
     event_id: PyObjectId  # na koji event se prijavljuje
-    user_id: PyObjectId   # ko se prijavljuje
 
     motivation: Annotated[str, Field(min_length=10, max_length=500)]  # mini motivaciono pismo
     phone: Annotated[str, Field(min_length=6, max_length=20)]         # kontakt telefon
@@ -43,7 +42,11 @@ class ApplicationDB(ApplicationIn):
     status: ApplicationStatus = ApplicationStatus.pending
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: Optional[datetime.datetime] = None
-
+    user_id: PyObjectId   # ko se prijavljuje
+    
+    
+    user_info: dict  # {"name": "...", "email": "...", "username": "..."}
+    
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,

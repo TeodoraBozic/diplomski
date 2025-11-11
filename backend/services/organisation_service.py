@@ -50,3 +50,25 @@ class OrganisationService:
         
     async def find_organisations(self):
         return await repo.find_organisations()
+
+
+    async def get_organisation_by_id(self, org_id: str):
+        org = await repo.find_by_id(org_id)
+        if not org:
+            raise ValueError("Organizacija nije pronađena")
+        return org
+
+    async def get_organisation_by_username(self, username: str):
+        org = await repo.find_by_username(username)
+        if not org:
+            raise ValueError("Organizacija sa tim username-om nije pronađena niti sličnim")
+        return org
+    
+    async def get_current_organisation(self, org_email: str):
+        org = await repo.find_by_email(org_email)
+        if not org:
+            raise ValueError("Organizacija nije pronađena")
+        return org
+    
+    
+    

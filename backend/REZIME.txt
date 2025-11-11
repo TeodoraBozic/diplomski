@@ -26,9 +26,9 @@ Nakon toga status postaje "approved" ili "rejected", i to možeš koristiti da o
 get all organisations done
 
 trebace mi: 
-svi eventovi u odredjenom gradu = get_events_by_location
-svi eventovi u nekom periodu
-svi eventovi narednog meseca npr
+svi eventovi u odredjenom gradu = get_events_by_location = odradjeno ali proveriti sa profesorom 
+svi eventovi u nekom periodu = u ovom mesecu i upcoming koji su this week - ostalo neka ide preko filtera
+svi eventovi narednog meseca npr -done vraca List[EventPublic]
 paginacija
 pretrazi event po kategoriji
 sve organizacije u odredjenom gradu + dugme pored toga prikazi eventove odredjene organizacije
@@ -36,3 +36,28 @@ prikazi sve zvanicne organizacije
 prikazi sve neformalne organizacije
 neki filter mozda za organizacije
 
+--dodala sam organisation_id u EventDB a organisationname u EventPublic kako bi se prikazivao
+
+--jedna mala promena = username i name moraju da mi budu mala slova spojena kao na instagramu - zbog pretrage; nije moguce pretraziti sa razmacima
+
+detalji o organizaciji get organisation by id i get org by username(fuzzy search done)
+getme (za organizaciju da moze da vidi sebe)
+
+(mozda treba da mi se ispravi da mi se sa get one org vracaju samo approved org)
+
+📍 /users/recommended (AI-like preporuke događaja po interesovanjima/tagovima korisnika)
+
+
+
+🧩drugi deo: application i review
+
+apply (to je create apply)
+cancel application
+reject approve application
+get all application (organizacija da vidi)
+get all application for some event
+nema delete i update application
+get my all application
+
+
+PITATI ZA OBAVESTENJA!!

@@ -14,6 +14,8 @@ async def init_admin():
     password_hash = bcrypt.hashpw("Admin123!".encode(), bcrypt.gensalt()).decode()
     admin_data = {
         "username": "admin",
+        "first_name": "Admin",
+        "last_name": "User",
         "email": "admin@gmail.com",
         "password": password_hash,
         "title": "System Administrator",
@@ -24,6 +26,7 @@ async def init_admin():
         "experience": "",
         "role": Role.admin,
     }
+
 
     await users_col.insert_one(admin_data)
     print("Kreiran admin nalog: admin@gmail.com / Admin123!")

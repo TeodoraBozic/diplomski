@@ -30,7 +30,17 @@ class Role(str, Enum):
     
 
 class UserIn(BaseModel):  
-    username: Annotated[str, Field(min_length=3, max_length=30)] 
+    username: Annotated[
+        str,
+        Field(
+            min_length=3,
+            max_length=30,
+            pattern=r"^[a-z0-9_-]{3,30}$",
+            description="Može sadržati mala slova, brojeve, donju crtu i crticu, bez razmaka."
+        )
+    ]
+    first_name: str
+    last_name:str
     email:EmailStr #na frontu neka bude validacija
     password: Annotated[str, Field(min_length=6)] #ovo ce u bazi da bude hesirano
     title: str #student, diplomirani pravnik, ucenik
@@ -73,7 +83,12 @@ class UserDB(UserIn):
     )
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = Field(None, min_length=3, max_length=30)
+    username: Optional[str] = Field(
+        None,
+        min_length=3,
+        max_length=30,
+        pattern=r"^[a-z0-9_-]{3,30}$"
+    )
     email: Optional[EmailStr] = None
     password: Optional[str] = Field(None, min_length=6, max_length=30)
     title: Optional[str] = None

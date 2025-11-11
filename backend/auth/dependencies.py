@@ -72,3 +72,17 @@ async def get_current_org(token: str = Depends(oauth2_scheme_org)):
     except JWTError as e:
         print("❌ JWT error:", e)
         raise HTTPException(status_code=401, detail="Neispravan token")
+
+
+
+
+def with_security(dep, security_name: str):
+    """
+    Wrapper za Depends koji pamti koji security tip ruta koristi.
+    Primer:
+        async def f(current_user=with_security(get_current_user, "UserAuth"))
+    """
+    d = Depends(dep)
+    d.dependency = dep
+    setattr(dep, "__security__", security_name)
+    return d

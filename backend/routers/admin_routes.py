@@ -1,17 +1,19 @@
-from typing import List
 from fastapi import APIRouter, Depends
-from models.organisation_models import OrganisationIn, OrganisationPublic
-from services.organisation_service import OrganisationService
 from auth.dependencies import admin_required
 from models.user_models import UserDB
+from services.organisation_service import OrganisationService
+from models.organisation_models import OrganisationPublic
+from typing import List
 
-router = APIRouter(prefix="/organisations", tags=["Organisations"])
+router = APIRouter(
+    prefix="/admin",
+    tags=["Admin"],
+    dependencies=[Depends(admin_required)] #samo adminove funkcije
+)
+
 service = OrganisationService()
 
-
-@router.post("/register")
-async def register_organisation(org_in: OrganisationIn):
-    return await service.register_organisation(org_in)
+#funckije su: 
 
 @router.get("/pending", dependencies=[Depends(admin_required)], response_model=List[OrganisationPublic])
 async def get_pending_orgs(current_admin: UserDB = Depends(admin_required)):
@@ -26,7 +28,3 @@ async def approve_org(org_id: str, current_admin: UserDB = Depends(admin_require
 @router.patch("/{org_id}/reject", dependencies=[Depends(admin_required)])
 async def reject_org(org_id: str, current_admin: UserDB = Depends(admin_required)):
     return await service.reject_organisation(org_id)
-
-@router.get("/findorganisations", response_model=List[OrganisationPublic])
-async def findorganisations():
-    return await service.find_organisations()

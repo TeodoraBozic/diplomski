@@ -27,6 +27,15 @@ class OrganisationRole(str, Enum):
 
 #klasa za registraciju
 class OrganisationIn(BaseModel):
+    username: Annotated[
+        str,
+        Field(
+            min_length=3,
+            max_length=30,
+            pattern=r"^[a-z0-9_-]{3,30}$",
+            description="Može sadržati mala slova, brojeve, donju crtu i crticu, bez razmaka."
+        )
+    ]
     name: Annotated[str, Field(min_length=3, max_length=100)]
     email: EmailStr
     password: Annotated[str, Field(min_length=6, max_length=30)]  # u bazi će biti hash
@@ -39,6 +48,7 @@ class OrganisationIn(BaseModel):
 
 #klasa za prikaz organizacije na profilu
 class OrganisationPublic(BaseModel):
+    username:str
     name: str
     description: Optional[str] = None
     location: Optional[str] = None
@@ -73,6 +83,12 @@ class OrganisationDB(OrganisationIn):
 
 #update klasa = sve opciono
 class OrganisationUpdate(BaseModel):
+    username: Optional[str] = Field(
+        None,
+        min_length=3,
+        max_length=30,
+        pattern=r"^[a-z0-9_-]{3,30}$"
+    )
     name: Optional[str] = Field(None, min_length=3, max_length=100)
     email: Optional[EmailStr] = None
     password: Optional[str] = Field(None, min_length=6, max_length=30)

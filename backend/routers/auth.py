@@ -54,10 +54,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 # --- Dohvatanje trenutnog korisnika ---
-@router.get("/me", response_model=UserPublic)
-async def get_me(current_user: dict = Depends(get_current_user)):
-    current_user["_id"] = str(current_user["_id"])
-    return UserPublic(**current_user)
+# @router.get("/me", response_model=UserPublic)
+# async def get_me(current_user: dict = Depends(get_current_user)):
+#     current_user["_id"] = str(current_user["_id"])
+#     return UserPublic(**current_user)
 
 
 # --- Login organizacije ---
