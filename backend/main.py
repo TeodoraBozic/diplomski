@@ -14,6 +14,7 @@ from routers import (
     public_user_routes,
     user_routes,
     public_event_routes,
+    uploads,
     
 )
 
@@ -57,6 +58,9 @@ app.include_router(user_routes.router)
 app.include_router(public_user_routes.router)
 app.include_router(public_org_routes.router)
 app.include_router(public_event_routes.router)
+app.include_router(uploads.router)
+
+
 
 
 @app.get("/health") 

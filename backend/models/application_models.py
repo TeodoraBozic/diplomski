@@ -26,14 +26,24 @@ class ApplicationIn(BaseModel):
 
 #javni prikaz prijave za organizatora
 class ApplicationPublic(BaseModel):
-    id: Annotated[PyObjectId, Field(alias="_id")]
-    event_id: str
-    user_id: str
+    #id: Annotated[PyObjectId, Field(alias="_id")]
+    #event_id: str
+    #user_id: str
+    event_title:str
+    user_info: dict
+    organisation_name: str
+    
     motivation: str
     phone: str
     extra_notes: Optional[str] = None
     status: ApplicationStatus
     created_at: datetime.datetime
+    
+    model_config = ConfigDict(
+    populate_by_name=True,
+    json_encoders={ObjectId: str}
+)
+
 
 
 #cuvanje apliciranja u bazi
@@ -54,7 +64,12 @@ class ApplicationDB(ApplicationIn):
     )
 
 
-#organizator upravlja statusom prijave
+
+class OrgDecision(str, Enum):
+    accepted = "accepted"
+    rejected = "rejected"
+
 class ApplicationUpdate(BaseModel):
-    status: Optional[ApplicationStatus] = None  # accepted / rejected
-    extra_notes: Optional[str] = None           # organizator može da doda komentar
+    status: Optional[OrgDecision] = None
+    extra_notes: Optional[str] = None
+

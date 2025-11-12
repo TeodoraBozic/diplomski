@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from typing import List
 from auth.dependencies import get_current_org
-from models.application_models import ApplicationUpdate
+from models.application_models import ApplicationPublic, ApplicationStatus, ApplicationUpdate, OrgDecision
 from services.application_service import ApplicationService
 from services.event_service import EventService
 from services.organisation_service import OrganisationService
@@ -55,6 +55,26 @@ async def update_event(event_id: str, update_data: EventUpdate):
         raise HTTPException(status_code=404, detail=str(e))
 
 
+
+@router.get("/OrganisationEventsApplication/{event_id}/applications", response_model=List[ApplicationPublic])
+async def get_event_applications_for_event(
+    event_id: str,
+    current_org=Depends(get_current_org)
+):
+    try:
+        applications = await app_service.get_event_applications(
+            event_id=event_id,
+            organisation_id=str(current_org["_id"])
+        )
+        return applications
+
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Greška: {str(e)}")
+
+
 # 🗑️ Brisanje eventa
 @router.delete("/events/delete/{event_id}", response_model=dict)
 async def delete_event(event_id: str):
@@ -77,15 +97,33 @@ async def get_my_event_history(current_org=Depends(get_current_org)):
 
 
 
-@router.get("/events/{event_id}/applications")
-async def get_event_applications(event_id: str, current_org=Depends(get_current_org)):
+@router.patch("/applications/{application_id}/status/{status}")
+async def update_application_status_path(
+    application_id: str,
+    status: OrgDecision = Path(..., description="accepted ili rejected"),
+    update: ApplicationUpdate = None,  # samo napomena, bez statusa
+    current_org=Depends(get_current_org)
+):
+    """
+    🏢 Organizacija menja status prijave direktno kroz URL.
+    Primer: /org/applications/{application_id}/status/accepted
+    """
+    update_data = {
+        "status": status,
+        "extra_notes": update.extra_notes if update else None
+    }
+
+    # direktan poziv servisa
+    return await app_service.update_status(application_id, ApplicationUpdate(**update_data), current_org)
+
+
+#radi
+@router.get("/GetAllAppl/all", response_model = List[ApplicationPublic])
+async def get_all_applications_for_org(current_org=Depends(get_current_org)):
     try:
-        return await app_service.get_event_applications(event_id, current_org["_id"])
-    except PermissionError as e:
-        raise HTTPException(status_code=403, detail=str(e))
-
-
-# ✅ Organizator menja status prijave (accept/reject)
-@router.patch("/applications/{application_id}")
-async def update_application_status(application_id: str, update: ApplicationUpdate, current_org=Depends(get_current_org)):
-    return await app_service.update_status(application_id, update)
+        return await app_service.get_all_applications_for_org(str(current_org["_id"]))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Greška: {str(e)}")
+    
+    
+    #eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHVkZW50c2thLmluaWNpamF0aXZhQGV4YW1wbGUuY29tIiwicm9sZSI6Im9yZ2FuaXNhdGlvbiIsImV4cCI6MTc2MjkxMTcwN30.z5qsuOxIXUWIfJ1npclHTGayrGQA-NoAEpbEbNaJYsI

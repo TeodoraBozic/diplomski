@@ -51,13 +51,14 @@ getme (za organizaciju da moze da vidi sebe)
 
 🧩drugi deo: application i review
 
-apply (to je create apply)
-cancel application
-reject approve application
-get all application (organizacija da vidi)
-get all application for some event
+apply (to je create apply) radi
+cancel application radi
+reject approve application radi = status ide kroz rutu
+get all application (organizacija da vidi) radi
+get all application for some event radi (current org)
 nema delete i update application
-get my all application
+get my all application radi
+statistika za organizaciju  = broj prijava po eventu, broj odobrenih, broj odbijenih  = radi
 
 
-PITATI ZA OBAVESTENJA!!
+PITATI ZA OBAVESTENJA!! da li web socket, da li polling

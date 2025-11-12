@@ -1,6 +1,7 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from auth.dependencies import get_current_user
-from models.application_models import ApplicationIn
+from models.application_models import ApplicationIn, ApplicationPublic
 from models.user_models import UserDB
 from services import event_service
 from services.application_service import ApplicationService
@@ -59,9 +60,21 @@ async def apply_for_event(application: ApplicationIn, current_user=Depends(get_c
         return await appservice.apply(application, current_user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
 
-
-# ✅ Korisnik vidi svoje prijave
-@router.get("/me/applications")
+#radi
+@router.get("/mojaapliciranja", response_model=List[ApplicationPublic])
 async def get_my_applications(current_user=Depends(get_current_user)):
-    return await appservice.get_user_applications(current_user["_id"])
+    try:
+        # ✅ koristi .id jer je current_user Pydantic model
+        return await appservice.get_my_applications(str(current_user.id))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Greška: {str(e)}")
+    
+    
+@router.patch("/applications/{application_id}/cancel")
+async def cancel_application(application_id: str, current_user=Depends(get_current_user)):
+    """
+    👤 Korisnik povlači svoju prijavu (status -> cancelled)
+    """
+    return await appservice.cancel_application(application_id, current_user)

@@ -1,5 +1,5 @@
 from bson import ObjectId
-from database.connection import applications_col
+from database.connection import applications_col, events_col
 
 class ApplicationRepository:
 
@@ -19,12 +19,13 @@ class ApplicationRepository:
 
     
     async def find_by_event(self, event_id: str):
-        apps = await applications_col.find({"event_id": ObjectId(event_id)}).to_list(length=None)
+        apps = await applications_col.find({"event_id": event_id}).to_list(length=None)
         for a in apps:
             a["_id"] = str(a["_id"])
             a["user_id"] = str(a["user_id"])
             a["event_id"] = str(a["event_id"])
         return apps
+
 
     async def find_by_user(self, user_id: str):
         apps = await applications_col.find({"user_id": ObjectId(user_id)}).to_list(length=None)
@@ -39,3 +40,34 @@ class ApplicationRepository:
             {"_id": ObjectId(application_id)},
             {"$set": update_data}
         )
+        
+    async def find_by_multiple_events(self, event_ids: list[str]):
+        apps = await applications_col.find({"event_id": {"$in": event_ids}}).to_list(length=None)
+        for a in apps:
+            a["_id"] = str(a["_id"])
+            a["user_id"] = str(a["user_id"])
+            a["event_id"] = str(a["event_id"])
+        return apps
+    
+    
+    async def find_by_user(self, user_id: str):
+        apps = await applications_col.find({"user_id": ObjectId(user_id)}).to_list(length=None)
+        for a in apps:
+            a["_id"] = str(a["_id"])
+            a["user_id"] = str(a["user_id"])
+            a["event_id"] = str(a["event_id"])
+        return apps
+
+
+
+    async def find_by_id(self, app_id: str):
+        application = await applications_col.find_one({"_id": ObjectId(app_id)})
+        if not application:
+            return None
+
+        # Prebaci ObjectId u string radi lakšeg prikaza
+        application["_id"] = str(application["_id"])
+        application["user_id"] = str(application["user_id"])
+        application["event_id"] = str(application["event_id"])
+
+        return application

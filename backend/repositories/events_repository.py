@@ -116,3 +116,11 @@ class EventRepository:
         result = await events_col.delete_one({"_id": ObjectId(event_id)})
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Event nije pronađen")
+        
+    #ovo je neki cudan helper koji nam treba da izvlaci eventove po id-jevima        
+    async def find_by_ids(self, ids: list[str]):
+        events = await events_col.find({"_id": {"$in": [ObjectId(i) for i in ids]}}).to_list(length=None)
+        for e in events:
+            e["_id"] = str(e["_id"])
+            e["organisation_id"] = str(e["organisation_id"])
+        return events
