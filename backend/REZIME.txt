@@ -61,4 +61,17 @@ get my all application radi
 statistika za organizaciju  = broj prijava po eventu, broj odobrenih, broj odbijenih  = radi
 
 
-PITATI ZA OBAVESTENJA!! da li web socket, da li polling
+PITATI ZA OBAVESTENJA!! da li web socket, da li polling, sta vec / pitati za id pristup jel treba po id-u pretraga da ide
+//osnove stvari za diplomiranje koliko ranije treba da se javim da ne bih zakasnila za master upisni rok
+//kad saznajem ko mi je u komisiji; koja prostorija; jel mogu da biram termin; sta tacno treba moja prezentacija da sadrzi
+
+
+notifikacije = web socket
+
+
+review
+to do: 
+sve ocene (publicreview) jedne organizacije
+sve ocene jednog korisnika
+avg ocena korisnika
+avg ocena organizacije

@@ -2,9 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from auth.dependencies import get_current_user
 from models.application_models import ApplicationIn, ApplicationPublic
+from models.review_models import ReviewUserToOrgDB, ReviewUserToOrgIn
 from models.user_models import UserDB
 from services import event_service
 from services.application_service import ApplicationService
+from services.review_service import ReviewService
 
 router = APIRouter(
     prefix="/user",
@@ -17,18 +19,14 @@ from auth.dependencies import get_current_user
 from services.user_service import UserService
 from models.user_models import UserDB, UserUpdate
 
-router = APIRouter(
-    prefix="/user",
-    tags=["User"],
-    dependencies=[Depends(get_current_user)]  # ✅ sve rute zahtevaju UserAuth
-)
 
 service = UserService()
 
 eventservice = event_service.EventService()
 
-
 appservice = ApplicationService()
+
+reviewservice = ReviewService()
 
 @router.get("/me", response_model=UserDB)
 async def get_me(current_user: UserDB = Depends(get_current_user)):
@@ -78,3 +76,21 @@ async def cancel_application(application_id: str, current_user=Depends(get_curre
     👤 Korisnik povlači svoju prijavu (status -> cancelled)
     """
     return await appservice.cancel_application(application_id, current_user)
+
+
+
+############ review ############
+
+
+@router.post("/reviews/user-to-org/{event_id}")
+async def create_review_user_to_org(
+    event_id: str,
+    body: ReviewUserToOrgIn,
+    current_user = Depends(get_current_user)
+):
+    return await reviewservice.create_user_to_org_review(
+        event_id=event_id,
+        user_id=current_user.id,
+        rating=body.rating,
+        comment=body.comment
+    )

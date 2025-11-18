@@ -1,13 +1,13 @@
-import datetime
-from typing import Annotated, Optional
-from enum import Enum
+# models/review_models.py
 
-from bson import ObjectId
-from pydantic import BaseModel, Field, ConfigDict
+import datetime
+from enum import Enum
+from pydantic import BaseModel, Field
+from typing import Optional
 from .user_models import PyObjectId
 
 
-#ovo je samo za ocene cisto da imamo
+# ---- Rating enum ----
 class ReviewRating(int, Enum):
     one = 1
     two = 2
@@ -16,47 +16,56 @@ class ReviewRating(int, Enum):
     five = 5
 
 
-#ko koga ocenjuje? bitno treba nam!
-class ReviewDirection(str, Enum):
-    org_to_user = "org_to_user"   # organizacija ocenjuje korisnika
-    user_to_org = "user_to_org"   # korisnik ocenjuje organizaciju
+# ===============================
+# USER → ORG REVIEW  (input)
+# ===============================
 
-
-#create review
-class ReviewIn(BaseModel):
-    event_id: PyObjectId
-    user_id: PyObjectId
-    organisation_id: PyObjectId
-    direction: ReviewDirection     # ko ocenjuje koga
+class ReviewUserToOrgIn(BaseModel):
     rating: ReviewRating
     comment: Optional[str] = Field(None, max_length=500)
 
 
-# --- Javni prikaz review-a ---
-class ReviewPublic(BaseModel):
-    id: Annotated[PyObjectId, Field(alias="_id")]
-    event_id: str
-    user_id: str
-    organisation_id: str
-    direction: ReviewDirection
-    rating: int
-    comment: Optional[str] = None
+# ===============================
+# USER → ORG REVIEW  (DB/public)
+# ===============================
+
+class ReviewUserToOrgDB(BaseModel):
+    id: PyObjectId = Field(alias="_id")
+    event_id: PyObjectId
+    user_id: PyObjectId
+    organisation_id: PyObjectId
+    rating: ReviewRating
+    comment: Optional[str]
     created_at: datetime.datetime
 
 
-#cuvanje revieow-a u bazi
-class ReviewDB(ReviewIn):
-    id: Annotated[PyObjectId, Field(alias="_id")]
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+# ===============================
+# ORG → USER REVIEW (input)
+# ===============================
 
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_encoders={ObjectId: str}
-    )
-
-
-#update review
-class ReviewUpdate(BaseModel):
-    rating: Optional[ReviewRating] = None
+class ReviewOrgToUserIn(BaseModel):
+    rating: ReviewRating
     comment: Optional[str] = Field(None, max_length=500)
+
+
+# ===============================
+# ORG → USER REVIEW (DB/public)
+# ===============================
+
+class ReviewOrgToUserDB(BaseModel):
+    id: PyObjectId = Field(alias="_id")
+    event_id: PyObjectId
+    user_id: PyObjectId
+    organisation_id: PyObjectId
+    rating: ReviewRating
+    comment: Optional[str]
+    created_at: datetime.datetime
+
+
+class PublicReview(BaseModel):
+    event_name: str
+    user_name: str
+    organisation_name: str
+    rating: ReviewRating
+    comment: Optional[str]
+    #created_at: datetime.datetime

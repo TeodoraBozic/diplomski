@@ -9,12 +9,12 @@ class ApplicationRepository:
         result = await applications_col.insert_one(application_data)
         return str(result.inserted_id)
 
-
+#ovo nam treba za review
     #find po useru i po eventu
-    async def find_by_user_and_event(self, user_id: str, event_id: str):
+    async def find_by_user_and_event(self, user_id: ObjectId, event_id: ObjectId):
         return await applications_col.find_one({
-            "user_id": ObjectId(user_id),
-            "event_id": ObjectId(event_id)
+            "user_id": user_id,
+            "event_id": event_id
         })
 
     

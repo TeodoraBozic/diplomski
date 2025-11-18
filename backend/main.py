@@ -15,7 +15,7 @@ from routers import (
     user_routes,
     public_event_routes,
     uploads,
-    
+    notifications_router,
 )
 
 
@@ -59,6 +59,9 @@ app.include_router(public_user_routes.router)
 app.include_router(public_org_routes.router)
 app.include_router(public_event_routes.router)
 app.include_router(uploads.router)
+app.include_router(notifications_router.router)
+
+
 
 
 

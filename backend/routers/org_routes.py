@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path
 from typing import List
 from auth.dependencies import get_current_org
 from models.application_models import ApplicationPublic, ApplicationStatus, ApplicationUpdate, OrgDecision
+from models.review_models import ReviewOrgToUserDB, ReviewOrgToUserIn
 from services.application_service import ApplicationService
 from services.event_service import EventService
 from services.organisation_service import OrganisationService
 from models.event_models import EventIn, EventUpdate, EventPublic
 from models.organisation_models import OrganisationPublic
+from services.review_service import ReviewService
 
 router = APIRouter(
     prefix="/org",
@@ -17,6 +19,7 @@ router = APIRouter(
 org_service = OrganisationService()
 event_service = EventService()
 app_service = ApplicationService()
+reviewservice = ReviewService()
 
 
 # 🏢 Info o ulogovanoj organizaciji
@@ -127,3 +130,21 @@ async def get_all_applications_for_org(current_org=Depends(get_current_org)):
     
     
     #eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHVkZW50c2thLmluaWNpamF0aXZhQGV4YW1wbGUuY29tIiwicm9sZSI6Im9yZ2FuaXNhdGlvbiIsImV4cCI6MTc2MjkxMTcwN30.z5qsuOxIXUWIfJ1npclHTGayrGQA-NoAEpbEbNaJYsI
+    
+    
+@router.post("/org/{event_id}/rate-user/{user_id}")
+async def org_rates_user(
+    event_id: str,
+    user_id: str,
+    data: ReviewOrgToUserIn,
+    current_org=Depends(get_current_org),
+    service: ReviewService = Depends()
+):
+    result = await service.create_org_to_user_review(
+        event_id=event_id,
+        user_id=user_id,
+        organisation_id=str(current_org["_id"]),
+        rating=data.rating,
+        comment=data.comment
+    )
+    return result

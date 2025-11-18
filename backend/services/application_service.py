@@ -8,40 +8,46 @@ from models.application_models import ApplicationIn, ApplicationDB, ApplicationU
 from repositories.events_repository import EventRepository
 from database.connection import applications_col
 from repositories.organisations_repository import OrganisationRepository
+from services.notification_service import NotificationService
 class ApplicationService:
     def __init__(self):
         
         self.repo = ApplicationRepository()
         self.event_repo = EventRepository()
         self.org_repo = OrganisationRepository()
+        self.notif_service = NotificationService()
         
         
 
     # korisnik se prijavljuje = radi!! i snapchot radi za sad mi ima smisla
     async def apply(self, application: ApplicationIn, current_user: UserDB):
+
+        # 1️⃣ Validacija eventa
         event = await self.event_repo.find_by_id(str(application.event_id))
         if not event:
             raise HTTPException(status_code=404, detail="Događaj nije pronađen.")
 
-        user_id = str(current_user.id)
-        event_id = str(application.event_id)
+        # Pretvori ID-jeve u ObjectId
+        user_id = ObjectId(current_user.id)
+        event_id = ObjectId(application.event_id)
 
-        # 2️⃣ Proveri da li je već aplicirao
+        # 2️⃣ Provera da li je korisnik već aplicirao
         existing = await self.repo.find_by_user_and_event(user_id, event_id)
         if existing:
             raise HTTPException(status_code=400, detail="Već ste se prijavili na ovaj događaj.")
 
-       
+        # Snapshot korisnika
         user_snapshot = {
             "first_name": current_user.first_name,
             "email": current_user.email,
             "username": current_user.username,
         }
 
-        # 4️⃣ Priprema podataka za čuvanje u bazi
+        # 3️⃣ Priprema podataka za čuvanje
         app_data = application.model_dump()
         app_data.update({
-            "user_id": ObjectId(user_id),
+            "user_id": user_id,
+            "event_id": event_id,
             "status": ApplicationStatus.pending,
             "created_at": datetime.utcnow(),
             "user_info": user_snapshot
@@ -49,12 +55,17 @@ class ApplicationService:
 
         inserted_id = await self.repo.create(app_data)
 
+        # 4️⃣ Slanje obaveštenja
+        await self.notif_service.notify_org(
+            organisation_id=str(event["organisation_id"]),
+            message=f"New volunteer applied for your event: {event['title']}"
+        )
+
         return {
             "message": "Prijava uspešno poslata.",
             "application_id": inserted_id,
             "status": ApplicationStatus.pending
         }
-        
         
         
     async def get_user_applications(self, user_id: str):

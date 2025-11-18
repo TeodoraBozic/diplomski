@@ -3,6 +3,7 @@ from typing import List
 from models.organisation_models import OrganisationIn, OrganisationPublic
 from services import statistics_service
 from services.organisation_service import OrganisationService
+from services.review_service import ReviewService
 
 router = APIRouter(prefix="/public/organisations", tags=["Public - Organisations"])
 service = OrganisationService()
@@ -41,3 +42,20 @@ async def get_organisation_by_username(username: str):
 async def get_org_stats(organisation_id: str):
     stats = await statistics_service.get_organisation_stats(organisation_id)
     return stats
+
+
+@router.get("/org/{org_id}/received", tags=["Reviews"])
+async def public_get_reviews_received_by_org(
+    org_id: str,
+    service: ReviewService = Depends()
+):
+    return await service.get_reviews_received_by_org(org_id)
+
+
+@router.get("/org/{org_id}/reviews", tags=["Reviews"])
+async def public_reviews_for_org(org_id: str, service: ReviewService = Depends()):
+    return await service.get_public_reviews_for_org(org_id)
+
+@router.get("/org/{org_id}/avg-rating", tags=["Reviews"])
+async def public_org_avg_rating(org_id: str, service: ReviewService = Depends()):
+    return await service.get_org_avg_rating(org_id)
