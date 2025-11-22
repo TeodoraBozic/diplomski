@@ -63,6 +63,7 @@ class ReviewOrgToUserDB(BaseModel):
 
 
 class PublicReview(BaseModel):
+    #id: PyObjectId = Field(alias="_id")
     event_name: str
     user_name: str
     organisation_name: str

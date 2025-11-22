@@ -266,14 +266,19 @@ class ReviewService:
     
     async def get_org_avg_rating(self, org_id: str):
         pipeline = [
-            {"$match": {"organisation_id": org_id, "direction": "user_to_org"}},
-            {"$group": {"_id": None, "avg_rating": {"$avg": "$rating"}}}
+            {"$match": {
+                "organisation_id": ObjectId(org_id),
+                "direction": "user_to_org"
+            }},
+            {"$group": {
+                "_id": None,
+                "avg_rating": {"$avg": "$rating"}
+            }}
         ]
 
         result = await self.repo.aggregate(pipeline)
 
         return {"avg_rating": round(result[0]["avg_rating"], 2)} if result else {"avg_rating": None}
-
 
     
     

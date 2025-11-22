@@ -1,4 +1,5 @@
 import os
+import uuid
 from bson import ObjectId
 from fastapi import APIRouter, UploadFile, File, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
@@ -16,6 +17,9 @@ os.makedirs(ORG_DIR, exist_ok=True)
 
 MAX_FILE_SIZE_MB = 5
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/jpg"}
+
+EVENT_DIR = os.path.join(UPLOAD_DIR, "events")
+os.makedirs(EVENT_DIR, exist_ok=True)
 
 
 # =====================================
@@ -69,7 +73,8 @@ async def upload_my_org_logo(
     if len(content) > MAX_FILE_SIZE_MB * 1024 * 1024:
         raise HTTPException(status_code=400, detail=f"Fajl je prevelik (maksimalno {MAX_FILE_SIZE_MB}MB)")
 
-    org_id = str(current_org.id)
+    org_id = str(current_org["_id"])
+
     file_ext = os.path.splitext(file.filename)[1]
     file_path = os.path.join(ORG_DIR, f"{org_id}{file_ext}")
 
@@ -85,3 +90,35 @@ async def upload_my_org_logo(
     )
 
     return JSONResponse(content={"url": url, "message": "Logo tvoje organizacije je uspešno uploadovan"})
+
+
+
+@router.post("/event-image")
+async def upload_event_image(
+    request: Request,
+    file: UploadFile = File(...),
+    current_org = Depends(get_current_org)   # samo organizacije mogu da uploaduju
+):
+    # Validacija tipa fajla
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=400, detail="Dozvoljeni su samo JPEG i PNG fajlovi")
+
+    # Validacija veličine
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE_MB * 1024 * 1024:
+        raise HTTPException(status_code=400, detail=f"Fajl je prevelik (maksimalno {MAX_FILE_SIZE_MB}MB)")
+
+    # Generisanje imena fajla
+    ext = os.path.splitext(file.filename)[1]
+    filename = f"event_{uuid.uuid4()}{ext}"
+    file_path = os.path.join(EVENT_DIR, filename)
+
+    # Snimanje fajla
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    # Formiranje apsolutnog URL-a
+    base_url = str(request.base_url).rstrip("/")
+    url = f"{base_url}/uploads/events/{filename}"
+
+    return {"url": url, "message": "Slika događaja uspešno uploadovana"}

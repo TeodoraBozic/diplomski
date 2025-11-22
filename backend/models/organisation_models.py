@@ -48,7 +48,9 @@ class OrganisationIn(BaseModel):
 
 #klasa za prikaz organizacije na profilu
 class OrganisationPublic(BaseModel):
+    id: Annotated[PyObjectId, Field(alias="_id")]
     username:str
+    email: str
     name: str
     description: Optional[str] = None
     location: Optional[str] = None
@@ -96,5 +98,5 @@ class OrganisationUpdate(BaseModel):
     location: Optional[str] = None
     phone: Optional[str] = None
     website: Optional[str] = None
-    status: Optional[OrganisationStatus] = None  # menja samo admin
+    #status: Optional[OrganisationStatus] = None  # menja samo admin
     org_type: Optional[OrganisationType] = None

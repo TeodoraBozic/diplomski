@@ -29,6 +29,8 @@ class EventIn(BaseModel):
     end_date: datetime.datetime  
     location: str #lokacija
     category: EventCategory #enum za tip dogadjaja
+    image_url: Optional[str] = None
+
 
     # opcione stvari
     max_volunteers: Optional[int] = None
@@ -38,7 +40,7 @@ class EventIn(BaseModel):
 
 #javni prikaz eventa
 class EventPublic(BaseModel):
-    #id: Annotated[PyObjectId, Field(alias="_id")]
+    id: Annotated[PyObjectId, Field(alias="_id")]  # front dobija "id", backend koristi ObjectId
     title: str
     description: str
     start_date: datetime.datetime
@@ -49,6 +51,14 @@ class EventPublic(BaseModel):
     image: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
     organisation_name: Optional[str] = None
+    image_url: Optional[str] = None
+
+    
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str}
+    )
 
 
 #cuvanje eventa u bazu

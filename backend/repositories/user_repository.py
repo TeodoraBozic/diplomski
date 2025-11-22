@@ -39,3 +39,10 @@ class UserRepository:
     async def delete(self, user_id: str):
         result = await users_col.delete_one({"_id": ObjectId(user_id)})
         return result.deleted_count > 0
+    
+    
+    async def find_by_username1(self, username: str):
+        user = await users_col.find_one({"username": username})
+        if user:
+            user["_id"] = str(user["_id"])
+        return user

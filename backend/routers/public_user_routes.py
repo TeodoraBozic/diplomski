@@ -41,3 +41,8 @@ async def public_reviews_for_user(user_id: str, service: ReviewService = Depends
 @router.get("/user/{user_id}/avg-rating", tags=["Reviews"])
 async def public_user_avg_rating(user_id: str, service: ReviewService = Depends()):
     return await service.get_user_avg_rating(user_id)
+
+
+@router.get("/pronadjipouseru/{username}", response_model=UserPublic)
+async def get_user_by_username(username: str):
+    return await service.get_by_username1(username)

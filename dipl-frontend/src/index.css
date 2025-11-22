@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background: #d9d9d9;
+    color: #121212;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(203, 221, 209, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(203, 221, 209, 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@layer components {
+  .btn-primary {
+    background: #CBDDD1;
+    color: #121212;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background: #B8D4C5;
+    transform: translateY(-2px);
+  }
+  
+  .btn-secondary {
+    background: #374151;
+    color: #FFFFFF;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: 1px solid #4B5563;
+  }
+  
+  .btn-secondary:hover {
+    background: #4B5563;
+    border-color: #6B7280;
+    transform: translateY(-2px);
+  }
+  
+  .btn-soft {
+    background: #374151;
+    color: #FFFFFF;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: 1px solid #4B5563;
+  }
+  
+  .btn-soft:hover {
+    background: #4B5563;
+    border-color: #6B7280;
+  }
+  
+  .card {
+    background: #FFFFFF;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    border: 1px solid #E5E7EB;
+  }
+  
+  .card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    border-color: #D1D5DB;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.75rem;
+    background: #FFFFFF;
+    color: #121212;
+    transition: all 0.2s;
+  }
+  
+  .input-field:focus {
+    outline: none;
+    border-color: #CBDDD1;
+    box-shadow: 0 0 0 2px rgba(203, 221, 209, 0.3);
+  }
+
+  /* Mint text with better contrast on white background */
+  .text-mint-contrast {
+    color: #5A8A6F;
+  }
+
+  /* Mint link with better visibility - darker green for text on white */
+  .link-mint {
+    color: #5A8A6F;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .link-mint:hover {
+    color: #7FA68F;
+    text-decoration: underline;
+  }
+
+  /* Mint text with background for better visibility */
+  .text-mint-badge {
+    color: #121212;
+    background-color: #CBDDD1;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-block;
+  }
+
+  /* Override text-mint for better contrast on white backgrounds - darker but same tone */
+  .text-mint {
+    color: #8AB5A0;
+  }
+
+  /* Keep original mint for backgrounds */
+  .bg-mint {
+    background-color: #CBDDD1;
+  }
+
+  /* Link style with dark text on light background (like badges) */
+  .link-mint-badge {
+    color: #121212;
+    background-color: #CBDDD1;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .link-mint-badge:hover {
+    background-color: #B8D4C5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Text style with dark text on light background */
+  .text-mint-on-light {
+    color: #121212;
+    background-color: #CBDDD1;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-block;
+  }
+
+  /* Date input styling */
+  input[type="date"] {
+    color-scheme: light;
+  }
+
+  /* Hide default calendar picker indicator - we use custom icon */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+  }
+  
+  /* Ensure date inputs have proper padding for icons */
+  input[type="date"].pr-10 {
+    padding-right: 2.5rem;
+  }
+  
+  /* Make sure custom icons are visible but don't block clicks */
+  .relative input[type="date"] + svg {
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  /* Make date inputs clearly clickable */
+  input[type="date"] {
+    cursor: pointer;
+  }
+
+  input[type="date"]:hover {
+    border-color: #CBDDD1;
+  }
+
+  input[type="date"]:focus {
+    border-color: #CBDDD1;
+    box-shadow: 0 0 0 2px rgba(203, 221, 209, 0.3);
+  }
+}

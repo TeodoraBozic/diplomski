@@ -1,5 +1,6 @@
 import datetime
 import bcrypt
+from bson import ObjectId
 from models.organisation_models import OrganisationIn, OrganisationStatus
 from repositories.organisations_repository import OrganisationRepository
 from fastapi import HTTPException
@@ -7,14 +8,14 @@ from fastapi import HTTPException
 repo = OrganisationRepository()
 
 class OrganisationService:
-    async def approve_organisation(self, org_id: str):
-        modified = await repo.update_status(org_id, "approved")
+    async def approve_organisation(self, org_name: str):
+        modified = await repo.update_status(org_name, "approved")
         if not modified:
             raise HTTPException(404, detail="Organizacija nije pronađena")
         return {"message": "Organizacija je uspešno odobrena."}
 
-    async def reject_organisation(self, org_id: str):
-        modified = await repo.update_status(org_id, "rejected")
+    async def reject_organisation(self, org_name: str):
+        modified = await repo.update_status(org_name, "rejected")
         if not modified:
             raise HTTPException(404, detail="Organizacija nije pronađena")
         return {"message": "Organizacija je odbijena."}
@@ -71,4 +72,23 @@ class OrganisationService:
         return org
     
     
-    
+    async def update_organisation(self, current_org, data):
+    # existing je LISTA jer find_by_username radi regex
+        existing = await repo.find_by_username(data["username"])
+
+        if existing:
+            existing = existing[0]  # uzmi prvi element
+
+            # ako se username menja na neku postojeću organizaciju koja NIJE ova
+            if str(existing["_id"]) != str(current_org["_id"]):
+                raise ValueError("Username already exists")
+
+        # sada slobodno ažuriraj
+        update_data = {k: v for k, v in data.items() if v is not None}
+
+
+        success = await repo.update(current_org["_id"], update_data)
+        if not success:
+            raise ValueError("Update failed")
+
+        return await repo.find_by_id(str(current_org["_id"]))

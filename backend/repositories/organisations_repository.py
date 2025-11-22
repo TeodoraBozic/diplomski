@@ -16,7 +16,7 @@ class OrganisationRepository:
 
     async def update_status(self, org_id: str, new_status: str):
         result = await organisations_col.update_one(
-            {"_id": ObjectId(org_id)},
+            {"username": org_id},
             {"$set": {"status": new_status}}
         )
         return result.modified_count
@@ -83,7 +83,20 @@ class OrganisationRepository:
                 org["_id"] = str(org["_id"])
             return orgs
   
-        
+  
+    async def update(self, org_id: str, update_data: dict):
+        result = await organisations_col.update_one(
+            {"_id": ObjectId(org_id)},
+            {"$set": update_data}
+        )
+        return result
+            
+            
+    async def find_exact_by_username(self, username: str):
+        org = await organisations_col.find_one({"username": username})
+        if org:
+            org["_id"] = str(org["_id"])
+        return org
 
 
 

@@ -7,7 +7,7 @@ from services.application_service import ApplicationService
 from services.event_service import EventService
 from services.organisation_service import OrganisationService
 from models.event_models import EventIn, EventUpdate, EventPublic
-from models.organisation_models import OrganisationPublic
+from models.organisation_models import OrganisationPublic, OrganisationUpdate
 from services.review_service import ReviewService
 
 router = APIRouter(
@@ -148,3 +148,19 @@ async def org_rates_user(
         comment=data.comment
     )
     return result
+
+
+@router.put("/me")
+async def update_my_organisation(update: OrganisationUpdate, current_org = Depends(get_current_org)):
+    data = update.model_dump(exclude_unset=True)
+    return await org_service.update_organisation(current_org, data)
+
+
+@router.get("/event/{event_id}")
+async def get_event_applications(
+    event_id: str,
+    current_org = Depends(get_current_org),
+    service: ApplicationService = Depends()
+):
+    # organizacija sme da vidi samo svoje evente → opciono možeš dodati proveru
+    return await service.get_applications_for_event(event_id)

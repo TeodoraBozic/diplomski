@@ -74,3 +74,10 @@ class UserService:
         if not deleted:
             raise HTTPException(status_code=404, detail="User not found")
         return {"status": "deleted"}
+
+
+    async def get_by_username1(self, username: str):
+        user = await repo.find_by_username1(username)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user

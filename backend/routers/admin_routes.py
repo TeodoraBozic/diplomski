@@ -20,11 +20,11 @@ async def get_pending_orgs(current_admin: UserDB = Depends(admin_required)):
     return await service.list_pending()
 
 
-@router.patch("/{org_id}/approve", dependencies=[Depends(admin_required)])
-async def approve_org(org_id: str, current_admin: UserDB = Depends(admin_required)):
-    return await service.approve_organisation(org_id)
+@router.patch("/{org_name}/approve", dependencies=[Depends(admin_required)])
+async def approve_org(org_name: str, current_admin: UserDB = Depends(admin_required)):
+    return await service.approve_organisation(org_name)
 
 
-@router.patch("/{org_id}/reject", dependencies=[Depends(admin_required)])
-async def reject_org(org_id: str, current_admin: UserDB = Depends(admin_required)):
-    return await service.reject_organisation(org_id)
+@router.patch("/{org_name}/reject", dependencies=[Depends(admin_required)])
+async def reject_org(org_name: str, current_admin: UserDB = Depends(admin_required)):
+    return await service.reject_organisation(org_name)

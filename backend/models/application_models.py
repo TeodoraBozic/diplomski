@@ -26,7 +26,7 @@ class ApplicationIn(BaseModel):
 
 #javni prikaz prijave za organizatora
 class ApplicationPublic(BaseModel):
-    #id: Annotated[PyObjectId, Field(alias="_id")]
+    id: Annotated[PyObjectId, Field(alias="_id")]
     #event_id: str
     #user_id: str
     event_title:str

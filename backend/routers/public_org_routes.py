@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
+from models.event_models import EventPublic
 from models.organisation_models import OrganisationIn, OrganisationPublic
 from services import statistics_service
 from services.organisation_service import OrganisationService
@@ -59,3 +60,7 @@ async def public_reviews_for_org(org_id: str, service: ReviewService = Depends()
 @router.get("/org/{org_id}/avg-rating", tags=["Reviews"])
 async def public_org_avg_rating(org_id: str, service: ReviewService = Depends()):
     return await service.get_org_avg_rating(org_id)
+
+
+
+

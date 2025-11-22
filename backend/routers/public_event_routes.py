@@ -39,7 +39,6 @@ async def get_events_by_organisation(username: str):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-
 @router.get("/location/{city}", response_model=List[EventPublic])
 async def get_events_by_location(city: str):
     return await service.get_events_by_location(city)
@@ -81,3 +80,14 @@ async def get_event_by_id(event_id: str):
     
     
     
+@router.get("/organisation/{event_id}")
+async def get_organisation_by_event(event_id: str):
+    try:
+        return await service.get_organisation_by_event_id(event_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+    
+@router.get("/organisation/{org_id}/history", response_model=List[EventPublic])
+async def get_public_org_history(org_id: str):
+    return await service.get_public_past_events(org_id)

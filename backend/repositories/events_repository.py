@@ -124,3 +124,16 @@ class EventRepository:
             e["_id"] = str(e["_id"])
             e["organisation_id"] = str(e["organisation_id"])
         return events
+    
+    
+    
+    async def find_by_organisation(self, organisation_id: str):
+        events = await events_col.find(
+            {"organisation_id": ObjectId(organisation_id)}
+        ).to_list(length=None)
+
+        for ev in events:
+            ev["_id"] = str(ev["_id"])
+            ev["organisation_id"] = str(ev["organisation_id"])
+
+        return events

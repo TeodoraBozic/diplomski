@@ -3,6 +3,7 @@ import re
 from bson import ObjectId
 from fastapi import HTTPException
 from date_helpers import get_current_month_range, get_current_week_range
+from mongo_cleaner import clean_doc
 from repositories.organisations_repository import OrganisationRepository
 from repositories.events_repository import EventRepository
 from models.event_models import EventCategory, EventIn, EventUpdate
@@ -114,12 +115,22 @@ class EventService:
                 if date_to:
                     date_filter["$lte"] = datetime.fromisoformat(date_to)
             except ValueError:
-                # Ako je format datuma loš
                 raise ValueError("Invalid date format. Use ISO format, e.g. 2025-05-12T00:00:00")
+
             query["start_date"] = date_filter
 
+        # 🚀 Samo budući događaji — NE prikazivati prošle
+        # Ako već postoji start_date filter, nećemo ga pregaziti
+        if "start_date" in query:
+            query["start_date"]["$gt"] = datetime.utcnow()
+        else:
+            query["start_date"] = {"$gt": datetime.utcnow()}
+
+        # Query ka DB
         events = await self.repo.filter_events(query)
+
         return await self._attach_organisation_names(events)
+
 
     # 7️⃣ Ažuriranje eventa
     async def update_event(self, event_id: str, update_data: EventUpdate):
@@ -140,19 +151,24 @@ class EventService:
 
 
     async def get_events_by_organisation_username(self, username: str):
-            org = await self.org_repo.find_by_username(username)
-            if not org:
-                raise ValueError("Organisation not found")
+        # 1. nađi organizaciju
+        org = await self.org_repo.find_exact_by_username(username)
+        if not org:
+            raise ValueError("Organisation not found")
 
-            org_id = str(org["_id"])
-            events = await self.repo.find_by_organisation(org_id)
+        # 2. izvuci ID
+        org_id = str(org["_id"])
 
-            # možeš opcionalno da dodaš ime organizacije u svaki event
-            for ev in events:
-                ev["organisation_name"] = org["name"]
-                ev.pop("organisation_id", None)
+        # 3. nađi SVE evente organizacije
+        events = await self.repo.find_by_organisation(org_id)
 
-            return events
+        # 4. dodaj ime organizacije u svaki event
+        for ev in events:
+            ev["organisation_name"] = org["name"]
+            ev.pop("organisation_id", None)
+
+        return events
+
         
         
     async def get_events_by_location(self, city: str):
@@ -217,6 +233,20 @@ class EventService:
 
         return past
     
+    async def get_public_past_events(self, organisation_id: str):
+        now = datetime.utcnow()
+        events = await self.repo.find_by_organisation(organisation_id)
+
+        past = [e for e in events if e["end_date"] <= now]
+
+        org = await self.org_repo.find_by_id(str(organisation_id))
+        org_name = org["name"] if org else None
+
+        for ev in past:
+            ev["organisation_name"] = org_name
+            ev.pop("organisation_id", None)
+
+        return clean_doc(past)
     
     async def get_upcoming_events(self):
         now = datetime.utcnow()
@@ -265,3 +295,22 @@ class EventService:
     async def get_all_categories(self):
         #ovo pretvara enum u listu vrednosti!!
         return [cat.value for cat in EventCategory]
+    
+    
+    async def get_organisation_by_event_id(self, event_id: str):
+    # 1. Nadji event
+        event = await self.repo.find_by_id(event_id)
+        if not event:
+            raise ValueError("Event not found")
+
+        org_id = event["organisation_id"]
+
+        # 2. Nadji organizaciju
+        org = await self.org_repo.find_by_id(org_id)
+        if not org:
+            raise ValueError("Organisation not found")
+
+        # 3. Pretvori _id u string ako nije već
+        org["_id"] = str(org["_id"])
+
+        return org
